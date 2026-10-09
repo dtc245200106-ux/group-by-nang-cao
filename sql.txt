@@ -1,0 +1,51 @@
+-- ============================================
+-- SỬ DỤNG DATABASE QUẢN LÝ SINH VIÊN
+-- ============================================
+USE QuanLySinhVien;
+
+-- ============================================
+-- TRUY VẤN 1: Môn học có Credit lớn nhất
+-- ============================================
+-- Cách 1: Dùng ALL (so sánh với tất cả)
+SELECT * 
+FROM Subject 
+WHERE Credit >= ALL (SELECT Credit FROM Subject);
+
+-- Cách 2: Dùng MAX (ngắn gọn hơn)
+SELECT * 
+FROM Subject 
+WHERE Credit = (SELECT MAX(Credit) FROM Subject);
+
+-- ============================================
+-- TRUY VẤN 2: Môn học có điểm thi lớn nhất
+-- ============================================
+-- Cách 1: Dùng ALL
+SELECT Sub.SubID, Sub.SubName, Sub.Credit, Sub.Status
+FROM Subject Sub
+WHERE Sub.SubID IN (
+    SELECT M.SubID 
+    FROM Mark M 
+    WHERE M.Mark >= ALL (SELECT Mark FROM Mark)
+);
+
+-- Cách 2: Dùng MAX (ngắn gọn)
+SELECT Sub.SubID, Sub.SubName, Sub.Credit, Sub.Status
+FROM Subject Sub
+WHERE Sub.SubID IN (
+    SELECT M.SubID 
+    FROM Mark M 
+    WHERE M.Mark = (SELECT MAX(Mark) FROM Mark)
+);
+
+-- ============================================
+-- TRUY VẤN 3: Sinh viên + Điểm TB, sắp xếp giảm dần
+-- ============================================
+SELECT 
+    S.StudentId, 
+    S.StudentName, 
+    S.Address,
+    AVG(M.Mark) AS 'Điểm trung bình'
+FROM Student S 
+JOIN Mark M ON S.StudentId = M.StudentId
+GROUP BY S.StudentId, S.StudentName, S.Address
+ORDER BY AVG(M.Mark) DESC;
